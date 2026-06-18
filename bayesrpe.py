@@ -155,9 +155,21 @@ def count_parameters(model):
 # baseline_angle = [np.pi/4, -np.pi/3]
 def createSyntheticDataset(baseline_length, baseline_angle, spatialPointPlaneDistance = 10, spatialPointVariance = 6, N_points = 100):
     '''
-    We'll create a 3D point cloud.
-    One major difference with Notebook 1 is that half the points will move according to some rotation-translation pair, 
-    and the other half according to another pair.
+    We create a 3D point cloud (output variable "X3").
+    This is then projected wrt a camera, producing 2D points (output variable "x2_A").
+    
+    The point cloud is then transformed (set of *K* rigid transforms) *and* project to a camera plane.
+
+    Each of the K equal parts of the dataset, is transformed according to a different rigid transformation.
+    Part of the points will move according to some rotation-translation pair, 
+    part according to another pair, and so on.
+
+    #TODO: For the next, general version of the model (ie full R+t, not just 1/2DOF),
+    #       This should be made clearer:
+    #       a) CLARIFY what we want to estimate. Do we work on a pdf space of 5DOF (R+normalized t) or do we need 6DOF (R+unnormalized t)?
+    #           Probably the latter is the best option -- intrinsically ambiguous, but our probabilistic model can theoretically handle it.
+    #           Probably the former is the best option -- it is impossible to estimate correctly given a stereopair anyway, and we can do learning in a smaller space.
+    #       b) On this note, DISENTANGLE 3D Rigid transformation of points from the plane projection. Right now these two are done together.
 
     The inputs "baseline_length, baseline_angle, CM_rotation" describe the properties of the Composing Motions (CMs). 
     Each variate corresponds to one CM.

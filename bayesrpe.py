@@ -17,6 +17,15 @@ from bayesrpeflows import Antimoebius
 # Giorgos Sfikas 2025
 
 
+# TODO: For the general 5DOF case:
+#   a) Workout which base distribution is required (basically we need 3 Euler angles + azimuth + elevation so just 5 (correlated) angles?)
+#   b) Make sure that we have an autoregressive flow to handle this -- this wasnt required for the 1DOF case
+#   c) Workout the non-EM case: just a single cluster, a simple RPE problem, no dynamics. This should give the correct relative pose as its maximum, if done correctly.
+#   d) Workout 2 clusters, make sure we have the corrected updates (u etc.)
+#   e) Make this work on synthetic case..
+#   f) Then pick wide-baseline pairs from real datasets and test there ... vs models that are optimized on static streams eg VGGT
+#   g) publish
+
 
 def createFreshFlows(num_kernels, num_layers = 2, num_hidden_channels = 8, num_bins = 6):
     flow_layers = [ [], [] ]
@@ -168,7 +177,7 @@ def createSyntheticDataset(baseline_length, baseline_angle, spatialPointPlaneDis
     #       This should be made clearer:
     #       a) CLARIFY what we want to estimate. Do we work on a pdf space of 5DOF (R+normalized t) or do we need 6DOF (R+unnormalized t)?
     #           Probably the latter is the best option -- intrinsically ambiguous, but our probabilistic model can theoretically handle it.
-    #           Probably the former is the best option -- it is impossible to estimate correctly given a stereopair anyway, and we can do learning in a smaller space.
+    #           **Probably the former is the best option -- it is impossible to estimate correctly given a stereopair anyway, and we can do learning in a smaller space.**
     #       b) On this note, DISENTANGLE 3D Rigid transformation of points from the plane projection. Right now these two are done together.
 
     The inputs "baseline_length, baseline_angle, CM_rotation" describe the properties of the Composing Motions (CMs). 
@@ -210,6 +219,8 @@ def createSyntheticDataset(baseline_length, baseline_angle, spatialPointPlaneDis
     x2_B = []
     K = len(baseline_length)
     ###################################################################################################
+    # TODO: For the general (5DOF) version,
+    # I'll need to write both of these camera matrices as P = KR[I|-t]
     cameraMatrix_A = np.array([[1, 0, 0, 0],
                                 [0, 1, 0, 0],
                                 [0, 0, 1, 0]])
